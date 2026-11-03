@@ -3,158 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chúc Mừng Sinh Nhật</title>
+    <title>Chúc Mừng Sinh Nhật Công Chúa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Nunito', sans-serif;
-            overflow: hidden;
             background-color: #fdf2f8;
+            overflow: hidden;
         }
         .font-cursive {
             font-family: 'Dancing Script', cursive;
         }
 
-        /* Khung chứa cánh hoa */
-        #petal-container {
-            position: absolute;
+        /* Các icon rơi ngẫu nhiên */
+        #falling-container {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 10;
+            overflow: hidden;
+            z-index: 0;
         }
-
-        /* CSS cho cánh hoa */
-        .petal {
+        .falling-icon {
             position: absolute;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-            border-radius: 15px 0px 15px 0px;
-            opacity: 0.8;
-            box-shadow: 0 0 10px rgba(255, 182, 193, 0.5);
-            animation: fall linear infinite, sway ease-in-out infinite alternate;
+            top: -10%;
+            animation-name: fall-down;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            will-change: transform;
+        }
+        @keyframes fall-down {
+            0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+            10%  { opacity: 0.9; }
+            25%  { transform: translate(28px, 30vh) rotate(90deg); }
+            50%  { transform: translate(-24px, 60vh) rotate(180deg); }
+            75%  { transform: translate(22px, 90vh) rotate(270deg); }
+            90%  { opacity: 0.9; }
+            100% { transform: translate(0, 125vh) rotate(360deg); opacity: 0; }
         }
 
-        /* Keyframes cho hiệu ứng rơi từ trên xuống */
-        @keyframes fall {
-            0% { top: -10%; }
-            100% { top: 110%; }
+        /* Thiệp 3D */
+        .card {
+            perspective: 1200px;
+            cursor: pointer;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            inset: 0;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+            box-shadow: 0 10px 25px rgba(190, 24, 93, 0.18);
+            border: 1px solid #fbcfe8;
+        }
+        .card-front {
+            background: linear-gradient(160deg, #ffe4ef 0%, #ffc2d9 100%);
+        }
+        .card-back {
+            background: linear-gradient(160deg, #ffffff 0%, #fff1f6 100%);
+            transform: rotateY(180deg);
+        }
+        .card:hover .card-inner {
+            transform: translateY(-8px);
+        }
+        .card.flipped:hover .card-inner {
+            transform: translateY(0) rotateY(180deg);
         }
 
-        /* Keyframes cho hiệu ứng đung đưa qua lại */
-        @keyframes sway {
-            0% { transform: translateX(0px) rotate(0deg); }
-            50% { transform: translateX(30px) rotate(45deg); }
-            100% { transform: translateX(-30px) rotate(90deg); }
+        /* Nút MỞ QUÀ NÈ */
+        #gift-button {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-
-        /* Nhịp tim đập cho ảnh */
-        @keyframes pulse-heart {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        .animate-pulse-heart {
-            animation: pulse-heart 2s infinite;
+        #gift-button.show {
+            opacity: 1;
+            transform: scale(1);
         }
     </style>
 </head>
 <body class="w-screen h-screen relative text-gray-800">
 
-    <div class="absolute inset-0 bg-gradient-to-br from-pink-100 via-white to-pink-50 flex-col items-center justify-center p-4 flex">
-        <!-- Container cho hoa rơi -->
-        <div id="petal-container"></div>
+    <!-- Các icon rơi ngẫu nhiên -->
+    <div id="falling-container"></div>
 
-        <div class="relative z-20 text-center max-w-2xl mx-auto flex flex-col items-center">
-            <!-- Khung ảnh trung tâm -->
-            <div class="relative mb-8 p-2 bg-white rounded-full shadow-xl animate-pulse-heart">
-                <img src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=kawaii%20birthday%20cake%20with%20strawberries%20and%20candles%2C%20pastel%20pink%20background%2C%20cute%20illustration&image_size=square" alt="Birthday Photo"
-                    class="w-48 h-48 md:w-64 md:h-64 object-cover rounded-full border-4 border-pink-200 shadow-inner">
-                <!-- Icon trang trí -->
-                <div class="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-lg">
-                    <span class="text-2xl">✨</span>
+    <main class="relative z-10 w-full h-full flex flex-col items-center justify-center gap-6 md:gap-10 p-6">
+        <!-- Tiêu đề -->
+        <h1 class="text-4xl md:text-6xl font-cursive text-pink-600 text-center drop-shadow-sm">
+            CHÚC MỪNG SINH NHẬT CÔNG CHÚA!
+        </h1>
+
+        <!-- 3 tấm thiệp xếp cạnh nhau -->
+        <div class="flex flex-col md:flex-row items-center justify-center gap-5 md:gap-8">
+            <div class="card w-40 h-56 md:w-56 md:h-72" data-index="0">
+                <div class="card-inner">
+                    <div class="card-face card-front">
+                        <span class="text-5xl mb-3">🎀</span>
+                        <p class="font-bold text-pink-600">Thiệp 1</p>
+                        <p class="text-xs text-pink-400 mt-1">Chạm để mở</p>
+                    </div>
+                    <div class="card-face card-back">
+                        <span class="text-3xl mb-2">💌</span>
+                        <p class="text-sm text-gray-700 leading-relaxed">Chúc Ty một ngày sinh nhật thật rực rỡ, luôn xinh đẹp và được yêu thương thật nhiều nhé!</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Lời chúc -->
-            <h1 class="text-5xl md:text-7xl font-cursive text-pink-500 mb-4 drop-shadow-sm">
-                Happy Birthday!
-            </h1>
-            <p class="text-lg md:text-xl text-gray-700 font-semibold mb-6 px-4">
-                Chúc cậu một ngày sinh nhật thật ấm áp, vui vẻ và ngập tràn hạnh phúc.
-                Tuổi mới thành công rực rỡ và luôn giữ nụ cười trên môi nhé! ❤️
-            </p>
+            <div class="card w-40 h-56 md:w-56 md:h-72" data-index="1">
+                <div class="card-inner">
+                    <div class="card-face card-front">
+                        <span class="text-5xl mb-3">🌷</span>
+                        <p class="font-bold text-pink-600">Thiệp 2</p>
+                        <p class="text-xs text-pink-400 mt-1">Chạm để mở</p>
+                    </div>
+                    <div class="card-face card-back">
+                        <span class="text-3xl mb-2">🌸</span>
+                        <p class="text-sm text-gray-700 leading-relaxed">Tuổi mới chúc Ty luôn mạnh khỏe, bình an và giữ mãi nụ cười tỏa nắng ấy nhé!</p>
+                    </div>
+                </div>
+            </div>
 
-            <!-- Nút tương tác nhỏ -->
-            <button onclick="createMorePetals()" class="mt-4 px-6 py-2 bg-white text-pink-400 font-bold rounded-full shadow-md hover:bg-pink-50 transition-colors border border-pink-100">
-                Thêm Hoa Rơi 🌸
-            </button>
+            <div class="card w-40 h-56 md:w-56 md:h-72" data-index="2">
+                <div class="card-inner">
+                    <div class="card-face card-front">
+                        <span class="text-5xl mb-3">🎁</span>
+                        <p class="font-bold text-pink-600">Thiệp 3</p>
+                        <p class="text-xs text-pink-400 mt-1">Chạm để mở</p>
+                    </div>
+                    <div class="card-face card-back">
+                        <span class="text-3xl mb-2">🎂</span>
+                        <p class="text-sm text-gray-700 leading-relaxed">Cảm ơn Ty vì đã xuất hiện thật đẹp. Chúc mọi điều Ty mong ước đều thành hiện thực!</p>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <!-- Nút mở quà (chỉ hiện khi đã mở đủ 3 thiệp) -->
+        <button id="gift-button" onclick="openGift()"
+            class="rounded-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-xl md:text-2xl px-10 py-4 shadow-xl shadow-rose-300/60 hidden">
+            MỞ QUÀ NÈ
+        </button>
+    </main>
+
+    <!-- Lớp nền mờ khi mở thư -->
+    <div id="letter-overlay" class="hidden fixed inset-0 z-40 bg-pink-900/40 backdrop-blur-sm"></div>
+
+    <!-- Bức thư được phóng to ra giữa màn hình -->
+    <div id="letter"
+        class="hidden fixed top-1/2 left-1/2 z-50 rounded-3xl bg-white shadow-2xl border border-pink-100 p-6 md:p-8 flex-col items-center justify-center text-center overflow-y-auto">
+        <h2 id="letter-title" class="font-cursive text-3xl md:text-4xl text-pink-500 mb-4"></h2>
+        <p id="letter-body" class="text-gray-700 leading-relaxed mb-6"></p>
+        <button onclick="closeLetter()"
+            class="rounded-full bg-rose-500 hover:bg-rose-600 text-white font-bold px-8 py-2 shadow-lg transition-colors">
+            Đóng
+        </button>
     </div>
 
     <script>
-        // Hàm tạo một cánh hoa
-        function createPetal() {
-            const petal = document.createElement('div');
-            petal.classList.add('petal');
-
-            // Random kích thước cánh hoa (từ 10px đến 25px)
-            const size = Math.random() * 15 + 10;
-            petal.style.width = `${size}px`;
-            petal.style.height = `${size}px`;
-
-            // Random vị trí xuất phát theo chiều ngang (0% đến 100%)
-            petal.style.left = `${Math.random() * 100}vw`;
-
-            // Random thời gian rơi (từ 4s đến 9s để tạo độ tự nhiên)
-            const fallDuration = Math.random() * 5 + 4;
-            // Random thời gian đung đưa (từ 2s đến 4s)
-            const swayDuration = Math.random() * 2 + 2;
-
-            petal.style.animationDuration = `${fallDuration}s, ${swayDuration}s`;
-
-            // Random độ trễ bắt đầu để hoa không rơi cùng một lúc
-            petal.style.animationDelay = `${Math.random() * 5}s, ${Math.random() * 2}s`;
-
-            // Màu sắc đa dạng cho cánh hoa
-            const colors = [
-                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
-                'linear-gradient(135deg, #ffb199 0%, #ff0844 100%)',
-                'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)'
-            ];
-            petal.style.background = colors[Math.floor(Math.random() * colors.length)];
-
-            // Thêm cánh hoa vào DOM
-            const container = document.getElementById('petal-container');
-            container.appendChild(petal);
-
-            // Tự động xóa cánh hoa sau khi rơi xong để giải phóng bộ nhớ
-            setTimeout(() => {
-                petal.remove();
-            }, (fallDuration + 5) * 1000);
-        }
-
-        // Hàm bắt đầu hiệu ứng hoa rơi liên tục
-        function startPetalEffect() {
-            // Tạo 30 cánh hoa ban đầu
-            for (let i = 0; i < 30; i++) {
-                createPetal();
+        const LETTERS = [
+            {
+                title: 'Gửi Ty thân thương',
+                body: 'Chúc Ty một ngày sinh nhật thật rực rỡ, luôn xinh đẹp và được yêu thương thật nhiều. Mong rằng tuổi mới sẽ mang đến cho Ty thật nhiều niềm vui và những điều bất ngờ dễ thương!'
+            },
+            {
+                title: 'Một chút yêu thương',
+                body: 'Tuổi mới rồi, chúc Ty luôn mạnh khỏe, bình an và giữ mãi nụ cười tỏa nắng ấy nhé. Cảm ơn Ty vì đã xuất hiện thật đẹp trong cuộc đời này.'
+            },
+            {
+                title: 'Điều ước nhỏ',
+                body: 'Chúc mừng sinh nhật Ty! Chúc Ty có một năm mới thật nhiều tiếng cười, thật nhiều yêu thương và luôn là công chúa của riêng mình nhé!'
             }
+        ];
 
-            // Tiếp tục tạo cánh hoa mới mỗi 300ms
-            setInterval(createPetal, 300);
-        }
+        const cards = document.querySelectorAll('.card');
+        const openedCards = new Set();
+        const giftButton = document.getElementById('gift-button');
+        const overlay = document.getElementById('letter-overlay');
+        const letter = document.getElementById('letter');
+        const letterTitle = document.getElementById('letter-title');
+        const letterBody = document.getElementById('letter-body');
+        let currentCard = null;
 
-        // Hàm tạo thêm một luồng hoa rơi ngay lập tức (khi nhấn nút)
-        function createMorePetals() {
-            for (let i = 0; i < 20; i++) {
-                setTimeout(createPetal, i * 100);
+        // Click vào thiệp: lật 3D rồi phóng to bức thư ra giữa màn hình
+        cards.forEach(function (card) {
+            card.addEventListener('click', function () {
+                if (currentCard) return;
+
+                currentCard = card;
+                card.classList.add('flipped');
+
+                setTimeout(function () {
+                    openLetter(card, Number(card.dataset.index));
+                }, 450);
+            });
+        });
+
+        function openLetter(card, index) {
+            const rect = card.getBoundingClientRect();
+            const width = Math.min(window.innerWidth * 0.9, 460);
+            const height = Math.min(window.innerHeight * 0.85, 560);
+
+            letterTitle.textContent = LETTERS[index].title;
+            letterBody.textContent = LETTERS[index].body;
+            letter.style.width = width + 'px';
+            letter.style.height = height + 'px';
+
+            // Vị trí bắt đầu = đúng vị trí tấm thiệp trên màn hình
+            const scale = rect.width / width;
+            const dx = (rect.left + rect.width / 2) - window.innerWidth / 2;
+            const dy = (rect.top + rect.height / 2) - window.innerHeight / 2;
+
+            letter.style.transition = 'none';
+            letter.style.transform = 'translate(-50%, -50%) translate(' + dx + 'px, ' + dy + 'px) scale(' + scale + ')';
+            letter.style.opacity = '0';
+
+            letter.classList.remove('hidden');
+            letter.classList.add('flex');
+            overlay.classList.remove('hidden');
+            overlay.style.transition = 'opacity 0.4s ease';
+            overlay.style.opacity = '0';
+
+            // Ép trình duyệt render trạng thái bắt đầu trước khi chuyển động
+            void letter.offsetWidth;
+
+            letter.style.transition = 'transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease';
+            letter.style.transform = 'translate(-50%, -50%) scale(1)';
+            letter.style.opacity = '1';
+            overlay.style.opacity = '1';
+
+            // Đánh dấu thiệp đã được xem
+            openedCards.add(index);
+            if (openedCards.size === cards.length) {
+                showGiftButton();
             }
         }
 
-        // Bắt đầu hiệu ứng hoa rơi khi tải trang
-        startPetalEffect();
+        // Thu nhỏ thư về lại vị trí tấm thiệp
+        function closeLetter() {
+            const card = currentCard;
+            if (!card) return;
+
+            const rect = card.getBoundingClientRect();
+            const width = parseFloat(letter.style.width);
+            const scale = rect.width / width;
+            const dx = (rect.left + rect.width / 2) - window.innerWidth / 2;
+            const dy = (rect.top + rect.height / 2) - window.innerHeight / 2;
+
+            letter.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.4s ease';
+            letter.style.transform = 'translate(-50%, -50%) translate(' + dx + 'px, ' + dy + 'px) scale(' + scale + ')';
+            letter.style.opacity = '0';
+            overlay.style.opacity = '0';
+
+            setTimeout(function () {
+                letter.classList.add('hidden');
+                letter.classList.remove('flex');
+                overlay.classList.add('hidden');
+                card.classList.remove('flipped');
+                currentCard = null;
+            }, 600);
+        }
+
+        // Chỉ hiện nút mở quà khi đã mở đủ 3 thiệp
+        function showGiftButton() {
+            giftButton.classList.remove('hidden');
+            setTimeout(function () {
+                giftButton.classList.add('show');
+            }, 30);
+        }
+
+        // Sang trang kết quả
+        function openGift() {
+            window.location.href = 'gift.html';
+        }
+
+        // Tạo các icon rơi ngẫu nhiên
+        function createFallingIcons() {
+            const container = document.getElementById('falling-container');
+            const icons = ['🍓', '🌸', '💖', '🎀', '✨', '🎈'];
+            const count = 28;
+
+            for (let i = 0; i < count; i++) {
+                const icon = document.createElement('span');
+                icon.className = 'falling-icon';
+                icon.textContent = icons[Math.floor(Math.random() * icons.length)];
+
+                icon.style.left = (Math.random() * 100) + '%';
+                icon.style.fontSize = (Math.random() * 22 + 16) + 'px';
+
+                const duration = Math.random() * 7 + 7;
+                icon.style.animationDuration = duration + 's';
+                // Delay âm để icon đã rải rác trên màn hình ngay từ đầu
+                icon.style.animationDelay = (-Math.random() * duration) + 's';
+
+                container.appendChild(icon);
+            }
+        }
+
+        createFallingIcons();
     </script>
 </body>
 </html>
