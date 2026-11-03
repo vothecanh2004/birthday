@@ -83,7 +83,8 @@
             'images/6.jpg', 'images/7.jpg', 'images/8.jpg', 'images/9.jpg', 'images/10.jpg'
         ];
 
-        const PHOTO_COUNT = 56;
+        // Tăng số lượng ảnh lên 80 để trái tim đặc hơn khi phóng to
+        const PHOTO_COUNT = 80; 
 
         let W = 0;
         let H = 0;
@@ -113,7 +114,10 @@
 
             const photoWidth = Math.max(44, Math.min(72, W * 0.052));
             const photoHeight = photoWidth * 1.28;
-            const scale = Math.min(W * 0.82 / 32, H * 0.72 / 29);
+            
+            // Nhân thêm 1.5 để phóng to toàn bộ khung trái tim
+            const scale = Math.min(W * 0.82 / 32, H * 0.72 / 29) * 1.5; 
+            
             const targets = heartPoints(PHOTO_COUNT, scale, W / 2, H * 0.47);
 
             let maxTotal = 0;
@@ -150,9 +154,10 @@
                 const targetTop = targets[i].y - photoHeight / 2;
 
                 // Thông số ngẫu nhiên: độ trễ, tốc độ rơi, thời gian hội tụ
-                const delay = randomBetween(0, 0.9);
-                const fallDuration = randomBetween(0.9, 1.5);
-                const convergeDuration = randomBetween(0.7, 1.1);
+                // Tăng thông số thời gian (giây) để hiệu ứng chậm lại
+const delay = randomBetween(0, 1.5);            // Ảnh xuất hiện thưa nhau hơn
+const fallDuration = randomBetween(2.0, 3.5);   // Rơi chậm hơn (từ 2 đến 3.5 giây)
+const convergeDuration = randomBetween(1.5, 2.5); // Bay vào xếp trái tim chậm hơn (từ 1.5 đến 2.5 giây)
 
                 const total = delay + fallDuration + convergeDuration;
                 if (total > maxTotal) maxTotal = total;
