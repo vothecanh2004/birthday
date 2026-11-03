@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc Mừng Sinh Nhật</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            overflow: hidden;
+            background-color: #fdf2f8;
+        }
+        .font-cursive {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* Khung chứa cánh hoa */
+        #petal-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* CSS cho cánh hoa */
+        .petal {
+            position: absolute;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            border-radius: 15px 0px 15px 0px;
+            opacity: 0.8;
+            box-shadow: 0 0 10px rgba(255, 182, 193, 0.5);
+            animation: fall linear infinite, sway ease-in-out infinite alternate;
+        }
+
+        /* Keyframes cho hiệu ứng rơi từ trên xuống */
+        @keyframes fall {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+
+        /* Keyframes cho hiệu ứng đung đưa qua lại */
+        @keyframes sway {
+            0% { transform: translateX(0px) rotate(0deg); }
+            50% { transform: translateX(30px) rotate(45deg); }
+            100% { transform: translateX(-30px) rotate(90deg); }
+        }
+
+        /* Nhịp tim đập cho ảnh */
+        @keyframes pulse-heart {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-heart {
+            animation: pulse-heart 2s infinite;
+        }
+    </style>
+</head>
+<body class="w-screen h-screen relative text-gray-800">
+
+    <div class="absolute inset-0 bg-gradient-to-br from-pink-100 via-white to-pink-50 flex-col items-center justify-center p-4 flex">
+        <!-- Container cho hoa rơi -->
+        <div id="petal-container"></div>
+
+        <div class="relative z-20 text-center max-w-2xl mx-auto flex flex-col items-center">
+            <!-- Khung ảnh trung tâm -->
+            <div class="relative mb-8 p-2 bg-white rounded-full shadow-xl animate-pulse-heart">
+                <img src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=kawaii%20birthday%20cake%20with%20strawberries%20and%20candles%2C%20pastel%20pink%20background%2C%20cute%20illustration&image_size=square" alt="Birthday Photo"
+                    class="w-48 h-48 md:w-64 md:h-64 object-cover rounded-full border-4 border-pink-200 shadow-inner">
+                <!-- Icon trang trí -->
+                <div class="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-lg">
+                    <span class="text-2xl">✨</span>
+                </div>
+            </div>
+
+            <!-- Lời chúc -->
+            <h1 class="text-5xl md:text-7xl font-cursive text-pink-500 mb-4 drop-shadow-sm">
+                Happy Birthday!
+            </h1>
+            <p class="text-lg md:text-xl text-gray-700 font-semibold mb-6 px-4">
+                Chúc cậu một ngày sinh nhật thật ấm áp, vui vẻ và ngập tràn hạnh phúc.
+                Tuổi mới thành công rực rỡ và luôn giữ nụ cười trên môi nhé! ❤️
+            </p>
+
+            <!-- Nút tương tác nhỏ -->
+            <button onclick="createMorePetals()" class="mt-4 px-6 py-2 bg-white text-pink-400 font-bold rounded-full shadow-md hover:bg-pink-50 transition-colors border border-pink-100">
+                Thêm Hoa Rơi 🌸
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Hàm tạo một cánh hoa
+        function createPetal() {
+            const petal = document.createElement('div');
+            petal.classList.add('petal');
+
+            // Random kích thước cánh hoa (từ 10px đến 25px)
+            const size = Math.random() * 15 + 10;
+            petal.style.width = `${size}px`;
+            petal.style.height = `${size}px`;
+
+            // Random vị trí xuất phát theo chiều ngang (0% đến 100%)
+            petal.style.left = `${Math.random() * 100}vw`;
+
+            // Random thời gian rơi (từ 4s đến 9s để tạo độ tự nhiên)
+            const fallDuration = Math.random() * 5 + 4;
+            // Random thời gian đung đưa (từ 2s đến 4s)
+            const swayDuration = Math.random() * 2 + 2;
+
+            petal.style.animationDuration = `${fallDuration}s, ${swayDuration}s`;
+
+            // Random độ trễ bắt đầu để hoa không rơi cùng một lúc
+            petal.style.animationDelay = `${Math.random() * 5}s, ${Math.random() * 2}s`;
+
+            // Màu sắc đa dạng cho cánh hoa
+            const colors = [
+                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+                'linear-gradient(135deg, #ffb199 0%, #ff0844 100%)',
+                'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)'
+            ];
+            petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+            // Thêm cánh hoa vào DOM
+            const container = document.getElementById('petal-container');
+            container.appendChild(petal);
+
+            // Tự động xóa cánh hoa sau khi rơi xong để giải phóng bộ nhớ
+            setTimeout(() => {
+                petal.remove();
+            }, (fallDuration + 5) * 1000);
+        }
+
+        // Hàm bắt đầu hiệu ứng hoa rơi liên tục
+        function startPetalEffect() {
+            // Tạo 30 cánh hoa ban đầu
+            for (let i = 0; i < 30; i++) {
+                createPetal();
+            }
+
+            // Tiếp tục tạo cánh hoa mới mỗi 300ms
+            setInterval(createPetal, 300);
+        }
+
+        // Hàm tạo thêm một luồng hoa rơi ngay lập tức (khi nhấn nút)
+        function createMorePetals() {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(createPetal, i * 100);
+            }
+        }
+
+        // Bắt đầu hiệu ứng hoa rơi khi tải trang
+        startPetalEffect();
+    </script>
+</body>
+</html>

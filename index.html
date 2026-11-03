@@ -3,77 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chúc Mừng Sinh Nhật</title>
+    <title>Nhập ngày sinh của bạn</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Thiết lập phông chữ */
+        /* Thiết lập phông chữ và nền hồng nhạt toàn màn hình */
         body {
             font-family: 'Nunito', sans-serif;
-            overflow: hidden; /* Ngăn cuộn trang khi hoa rơi */
-            background-color: #fdf2f8; /* Nền màu hồng nhạt */
+            overflow: hidden;
+            background-color: #fdf2f8;
         }
         .font-cursive {
             font-family: 'Dancing Script', cursive;
         }
 
-        /* Hiệu ứng chuyển cảnh */
-        .fade-out {
-            opacity: 0;
-            transition: opacity 0.8s ease-out;
-            pointer-events: none;
-        }
-        .fade-in {
-            opacity: 1;
-            transition: opacity 1.2s ease-in;
-        }
-
-        /* Khung chứa cánh hoa */
-        #petal-container {
-            position: absolute;
+        /* Khung chứa các icon quả dâu tây trôi nổi */
+        #berry-container {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Tránh cản trở tương tác */
-            z-index: 10;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
         }
 
-        /* CSS cho cánh hoa */
-        .petal {
+        /* Icon quả dâu tây trôi nổi ngẫu nhiên */
+        .berry {
             position: absolute;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-            /* Tạo hình dáng cánh hoa */
-            border-radius: 15px 0px 15px 0px; 
-            opacity: 0.8;
-            box-shadow: 0 0 10px rgba(255, 182, 193, 0.5);
-            animation: fall linear infinite, sway ease-in-out infinite alternate;
+            bottom: -15%;
+            animation-name: float-berry;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            will-change: transform, opacity;
         }
 
-        /* Keyframes cho hiệu ứng rơi từ trên xuống */
-        @keyframes fall {
-            0% {
-                top: -10%;
-            }
-            100% {
-                top: 110%;
-            }
+        @keyframes float-berry {
+            0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+            10%  { opacity: 0.85; }
+            25%  { transform: translate(30px, -30vh) rotate(90deg); }
+            50%  { transform: translate(-28px, -62vh) rotate(180deg); }
+            75%  { transform: translate(26px, -92vh) rotate(270deg); }
+            90%  { opacity: 0.85; }
+            100% { transform: translate(0, -125vh) rotate(360deg); opacity: 0; }
         }
 
-        /* Keyframes cho hiệu ứng đung đưa qua lại */
-        @keyframes sway {
-            0% {
-                transform: translateX(0px) rotate(0deg);
-            }
-            50% {
-                transform: translateX(30px) rotate(45deg);
-            }
-            100% {
-                transform: translateX(-30px) rotate(90deg);
-            }
-        }
-
-        /* Tạo khối nhịp tim đập cho nút bấm và ảnh */
+        /* Nhịp tim đập cho ảnh đại diện */
         @keyframes pulse-heart {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -81,172 +57,175 @@
         .animate-pulse-heart {
             animation: pulse-heart 2s infinite;
         }
+
+        /* Lắc khung khi nhập sai */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+        }
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* Phím số trên bàn phím ảo */
+        .key {
+            padding: 0.85rem 0;
+            border-radius: 1rem;
+            background-color: #ffffff;
+            border: 1px solid #fbcfe8;
+            color: #be185d;
+            font-size: 1.25rem;
+            font-weight: 700;
+            box-shadow: 0 1px 3px rgba(190, 24, 93, 0.1);
+            transition: transform 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        .key:hover {
+            background-color: #fdf2f8;
+        }
+        .key:active {
+            transform: scale(0.93);
+        }
+
+        /* Nút "C" và "✔" màu cam nhạt nổi bật */
+        .key-orange {
+            background: linear-gradient(180deg, #ffd8a8 0%, #ffbe76 100%);
+            border-color: #ffc078;
+            color: #9a3412;
+            box-shadow: 0 4px 12px rgba(255, 159, 64, 0.35);
+        }
+        .key-orange:hover {
+            background: linear-gradient(180deg, #ffc98c 0%, #ffab52 100%);
+        }
+        .key-ok {
+            background: linear-gradient(180deg, #ffc078 0%, #ff9f43 100%);
+            color: #7c2d12;
+        }
+        .key-ok:hover {
+            background: linear-gradient(180deg, #ffb35c 0%, #ff8f1f 100%);
+        }
     </style>
 </head>
 <body class="w-screen h-screen relative text-gray-800">
 
-    <!-- Màn hình Nhập Mật Khẩu -->
-    <div id="login-screen" class="absolute inset-0 flex flex-col items-center justify-center bg-pink-50 z-50 transition-opacity duration-1000">
-        <div class="bg-white p-8 md:p-12 rounded-3xl shadow-2xl text-center max-w-sm w-full mx-4 border border-pink-100">
-            <div class="mb-6">
-                <svg class="w-16 h-16 text-pink-400 mx-auto animate-pulse-heart" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
-                </svg>
+    <!-- Các icon quả dâu tây trôi nổi -->
+    <div id="berry-container"></div>
+
+    <!-- Khung trung tâm -->
+    <div class="relative z-10 flex items-center justify-center w-full h-full p-4">
+        <div id="login-card"
+            class="w-full max-w-3xl bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-pink-100 p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-10">
+
+            <!-- Ảnh đại diện bên trái -->
+            <div class="shrink-0">
+                <img src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=cute%20kawaii%20cartoon%20strawberry%20mascot%20character%2C%20smiling%20face%2C%20pastel%20pink%20background%2C%20soft%20illustration&image_size=square"
+                    alt="Ảnh đại diện"
+                    class="w-28 h-28 md:w-40 md:h-40 object-cover rounded-full border-4 border-pink-200 shadow-lg animate-pulse-heart">
             </div>
-            <h1 class="text-3xl font-cursive text-pink-500 mb-2">Hello there!</h1>
-            <p class="text-gray-500 text-sm mb-6">Nhập mật khẩu (Ngày sinh của bạn) để tiếp tục nhé!</p>
-            
-            <input type="password" id="password-input" placeholder="Ví dụ: 20102000" 
-                class="w-full px-4 py-3 rounded-xl border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent text-center text-lg mb-4 transition-all">
-            
-            <p id="error-message" class="text-red-500 text-sm mb-4 hidden">Sai mật khẩu rồi, thử lại nha! 😢</p>
-            
-            <button onclick="checkPassword()" 
-                class="w-full bg-pink-400 hover:bg-pink-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-pink-300/50">
-                Mở Quà 🎁
-            </button>
-        </div>
-    </div>
 
-    <!-- Màn hình Chính (Chúc Mừng Sinh Nhật) -->
-    <div id="main-screen" class="absolute inset-0 hidden opacity-0 bg-gradient-to-br from-pink-100 via-white to-pink-50 flex-col items-center justify-center p-4">
-        <!-- Container cho hoa rơi -->
-        <div id="petal-container"></div>
+            <!-- Khu vực nhập liệu bên phải -->
+            <div class="flex-1 w-full">
+                <h1 class="text-2xl md:text-3xl font-bold text-rose-600 mb-4 text-center md:text-left">
+                    Nhập ngày sinh của bạn.......
+                </h1>
 
-        <div class="relative z-20 text-center max-w-2xl mx-auto flex flex-col items-center">
-            <!-- Khung ảnh trung tâm -->
-            <div class="relative mb-8 p-2 bg-white rounded-full shadow-xl animate-pulse-heart">
-                <!-- Bạn có thể thay đổi đường dẫn ảnh này bằng ảnh thật -->
-                <img src="https://placehold.co/400x400/ffb6c1/ffffff?text=Happy+Birthday" alt="Birthday Photo" 
-                    class="w-48 h-48 md:w-64 md:h-64 object-cover rounded-full border-4 border-pink-200 shadow-inner">
-                <!-- Icon trang trí -->
-                <div class="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-lg">
-                    <span class="text-2xl">✨</span>
+                <input type="password" id="password-input" readonly inputmode="none" placeholder="••••••••"
+                    class="w-full px-4 py-3 rounded-2xl border border-pink-200 bg-pink-50/50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent text-center text-xl tracking-[0.3em] mb-4 transition-all">
+
+                <p id="error-message" class="hidden text-rose-500 text-sm text-center mb-3">
+                    Sai ngày sinh rồi, thử lại nha! 💔
+                </p>
+
+                <!-- Bàn phím ảo -->
+                <div class="grid grid-cols-3 gap-3">
+                    <button type="button" class="key" data-key="1">1</button>
+                    <button type="button" class="key" data-key="2">2</button>
+                    <button type="button" class="key" data-key="3">3</button>
+                    <button type="button" class="key" data-key="4">4</button>
+                    <button type="button" class="key" data-key="5">5</button>
+                    <button type="button" class="key" data-key="6">6</button>
+                    <button type="button" class="key" data-key="7">7</button>
+                    <button type="button" class="key" data-key="8">8</button>
+                    <button type="button" class="key" data-key="9">9</button>
+                    <button type="button" class="key key-orange" data-key="clear">C</button>
+                    <button type="button" class="key" data-key="0">0</button>
+                    <button type="button" class="key key-orange key-ok" data-key="ok">✔</button>
                 </div>
             </div>
-
-            <!-- Lời chúc -->
-            <h1 class="text-5xl md:text-7xl font-cursive text-pink-500 mb-4 drop-shadow-sm">
-                Happy Birthday!
-            </h1>
-            <p class="text-lg md:text-xl text-gray-700 font-semibold mb-6 px-4">
-                Chúc cậu một ngày sinh nhật thật ấm áp, vui vẻ và ngập tràn hạnh phúc. 
-                Tuổi mới thành công rực rỡ và luôn giữ nụ cười trên môi nhé! ❤️
-            </p>
-            
-            <!-- Nút tương tác nhỏ -->
-            <button onclick="createMorePetals()" class="mt-4 px-6 py-2 bg-white text-pink-400 font-bold rounded-full shadow-md hover:bg-pink-50 transition-colors border border-pink-100">
-                Thêm Hoa Rơi 🌸
-            </button>
         </div>
     </div>
 
     <script>
-        // Mật khẩu mặc định (bạn có thể thay đổi tại đây)
-        const CORRECT_PASSWORD = "20102000";
+        // Mật khẩu ngày sinh định trước (bạn có thể thay đổi tại đây)
+        const CORRECT_PASSWORD = "13112001";
 
-        // Lắng nghe sự kiện nhấn phím Enter ở ô nhập mật khẩu
-        document.getElementById('password-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                checkPassword();
-            }
+        const input = document.getElementById('password-input');
+        const errorMessage = document.getElementById('error-message');
+        const loginCard = document.getElementById('login-card');
+
+        // Liên kết bàn phím ảo với ô input
+        document.querySelectorAll('.key').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const key = button.dataset.key;
+
+                if (key === 'clear') {
+                    // Xóa ký tự vừa nhập
+                    input.value = input.value.slice(0, -1);
+                } else if (key === 'ok') {
+                    // Xác nhận
+                    checkPassword();
+                } else {
+                    // Nhập số
+                    input.value += key;
+                }
+
+                errorMessage.classList.add('hidden');
+            });
         });
 
-        // Hàm kiểm tra mật khẩu
+        // Kiểm tra mật khẩu ngày sinh
         function checkPassword() {
-            const input = document.getElementById('password-input').value;
-            const errorMessage = document.getElementById('error-message');
-            const loginScreen = document.getElementById('login-screen');
-            const mainScreen = document.getElementById('main-screen');
-
-            if (input === CORRECT_PASSWORD) {
-                // Ẩn thông báo lỗi nếu đang hiện
-                errorMessage.classList.add('hidden');
-                
-                // Hiệu ứng mờ dần màn hình đăng nhập
-                loginScreen.classList.add('fade-out');
-                
-                setTimeout(() => {
-                    loginScreen.classList.add('hidden'); // Ẩn hoàn toàn khỏi DOM
-                    
-                    // Hiển thị màn hình chính
-                    mainScreen.classList.remove('hidden');
-                    // Sử dụng setTimeout nhỏ để đảm bảo trình duyệt kịp render trước khi đổi opacity
-                    setTimeout(() => {
-                        mainScreen.classList.add('fade-in');
-                        mainScreen.classList.remove('opacity-0');
-                        // Bắt đầu tạo hiệu ứng hoa rơi
-                        startPetalEffect();
-                    }, 50);
-                }, 800); // Khớp với thời gian transition trong CSS
+            if (input.value === CORRECT_PASSWORD) {
+                // Đúng thì điều hướng sang trang chúc sinh nhật
+                window.location.href = 'birthday.html';
             } else {
-                // Hiển thị thông báo lỗi
+                // Sai thì hiện thông báo và lắc khung
                 errorMessage.classList.remove('hidden');
-                // Lắc nhẹ khung nhập
-                const inputEl = document.getElementById('password-input');
-                inputEl.classList.add('animate-bounce');
-                setTimeout(() => inputEl.classList.remove('animate-bounce'), 500);
+                loginCard.classList.add('shake');
+                setTimeout(function () {
+                    loginCard.classList.remove('shake');
+                }, 500);
             }
         }
 
-        // Hàm tạo một cánh hoa
-        function createPetal() {
-            const petal = document.createElement('div');
-            petal.classList.add('petal');
-            
-            // Random kích thước cánh hoa (từ 10px đến 25px)
-            const size = Math.random() * 15 + 10;
-            petal.style.width = `${size}px`;
-            petal.style.height = `${size}px`;
-            
-            // Random vị trí xuất phát theo chiều ngang (0% đến 100%)
-            petal.style.left = `${Math.random() * 100}vw`;
-            
-            // Random thời gian rơi (từ 4s đến 9s để tạo độ tự nhiên)
-            const fallDuration = Math.random() * 5 + 4;
-            // Random thời gian đung đưa (từ 2s đến 4s)
-            const swayDuration = Math.random() * 2 + 2;
-            
-            petal.style.animationDuration = `${fallDuration}s, ${swayDuration}s`;
-            
-            // Random độ trễ bắt đầu để hoa không rơi cùng một lúc
-            petal.style.animationDelay = `${Math.random() * 5}s, ${Math.random() * 2}s`;
+        // Tạo các icon quả dâu tây trôi nổi ngẫu nhiên
+        function createBerries() {
+            const container = document.getElementById('berry-container');
+            const BERRY_COUNT = 16;
 
-            // Màu sắc đa dạng cho cánh hoa (hồng nhạt, hồng đậm, trắng)
-            const colors = [
-                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
-                'linear-gradient(135deg, #ffb199 0%, #ff0844 100%)',
-                'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)'
-            ];
-            petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+            for (let i = 0; i < BERRY_COUNT; i++) {
+                const berry = document.createElement('span');
+                berry.className = 'berry';
+                berry.textContent = '🍓';
 
-            // Thêm cánh hoa vào DOM
-            const container = document.getElementById('petal-container');
-            container.appendChild(petal);
+                // Vị trí, kích thước, tốc độ và độ trễ ngẫu nhiên
+                berry.style.left = (Math.random() * 100) + '%';
+                berry.style.fontSize = (Math.random() * 24 + 16) + 'px';
 
-            // Tự động xóa cánh hoa sau khi rơi xong để giải phóng bộ nhớ
-            setTimeout(() => {
-                petal.remove();
-            }, (fallDuration + 5) * 1000); 
-        }
+                const duration = Math.random() * 10 + 10;
+                berry.style.animationDuration = duration + 's';
+                // Delay âm để các quả dâu đã ở rải rác trên màn hình ngay từ đầu
+                berry.style.animationDelay = (-Math.random() * duration) + 's';
 
-        // Hàm bắt đầu hiệu ứng hoa rơi liên tục
-        function startPetalEffect() {
-            // Tạo 30 cánh hoa ban đầu
-            for (let i = 0; i < 30; i++) {
-                createPetal();
-            }
-            
-            // Tiếp tục tạo cánh hoa mới mỗi 300ms
-            setInterval(createPetal, 300);
-        }
-
-        // Hàm tạo thêm một luồng hoa rơi ngay lập tức (khi nhấn nút)
-        function createMorePetals() {
-            for (let i = 0; i < 20; i++) {
-                setTimeout(createPetal, i * 100);
+                container.appendChild(berry);
             }
         }
+
+        createBerries();
     </script>
 </body>
 </html>
