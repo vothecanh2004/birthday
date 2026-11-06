@@ -12,6 +12,14 @@
             height: 100%;
             overflow: hidden;
             font-family: 'Nunito', sans-serif;
+            background-color: #fff5f9; /* màu nền cơ bản */
+        }
+
+        /* Lớp nền gradient tách biệt để hỗ trợ z-index cho sparkles */
+        #bg-gradient {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
             background: linear-gradient(180deg, #fff5f9 0%, #ffe0ee 100%);
         }
 
@@ -33,6 +41,7 @@
             border: 1px solid rgba(255, 255, 255, 0.9);
             box-shadow: 0 8px 18px rgba(190, 24, 93, 0.25);
             will-change: top, left, transform;
+            z-index: 10;           /* Tăng z-index để nằm trên sparkles */
         }
         .photo img {
             display: block;
@@ -65,9 +74,51 @@
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
         }
+
+        /* Lớp đốm sáng lấp lánh: nằm trên nền nhưng dưới ảnh */
+        #sparkles {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* Container cho một cụm ngôi sao */
+        .sparkle-cluster {
+            position: absolute;
+            will-change: opacity, transform;
+        }
+
+        /* Mỗi ngôi sao SVG trong cụm */
+        .sparkle-svg {
+    position: absolute;
+    fill: #ff80ab;        /* Đổi sang màu hồng (Pink) */
+    stroke: #e91e63;      /* Đổi viền sang màu hồng đậm (hoặc để 'none' nếu không muốn viền) */
+    stroke-width: 1.5px;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 4px rgba(255, 128, 171, 0.8)); /* Đổi bóng mờ (glow) sang tone hồng */
+    animation-name: twinkle;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(0.8) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.1) rotate(5deg);
+            }
+        }
     </style>
 </head>
 <body>
+
+    <div id="bg-gradient"></div>
+    <div id="sparkles"></div>
 
     <div id="stage">
         <p id="wish">Chúc mừng sinh nhật Ty</p>
@@ -76,6 +127,7 @@
     <script>
         const stage = document.getElementById('stage');
         const wish = document.getElementById('wish');
+        const sparkleLayer = document.getElementById('sparkles');
 
         // Danh sách ảnh dùng để xếp thành trái tim
         const IMAGE_FILES = [
@@ -108,6 +160,75 @@
             return min + Math.random() * (max - min);
         }
 
+        // Sinh các ngôi sao nét vẽ tay (SVG) theo cụm (to và nhỏ đi kèm nhau)
+        function spawnSparkles() {
+            sparkleLayer.innerHTML = '';
+
+            // Chỉ dùng hình dạng ngôi sao 4 cánh nét vẽ tay từ ảnh mẫu
+            const STAR_PATH = "M12 2C13 9 16 11 22 12C16 13 13 15 12 22C11 15 8 13 2 12C8 11 11 9 12 2Z";
+
+            const CLUSTER_COUNT = 30; // Số lượng cụm ngôi sao
+            const cols = Math.max(1, Math.round(Math.sqrt(CLUSTER_COUNT * (W / Math.max(H, 1)))));
+            const rows = Math.max(1, Math.ceil(CLUSTER_COUNT / cols));
+            const cellW = W / cols;
+            const cellH = H / rows;
+
+            const zoom = (W < 640 || H < 640) ? 1 : 1.5;
+            const scale = Math.min(W * 0.82 / 32, H * 0.72 / 29) * zoom;
+            const cx = W / 2;
+            const cy = H * 0.47;
+            const exR = scale * 18; 
+            const eyR = scale * 15;
+
+            for (let i = 0; i < CLUSTER_COUNT; i++) {
+                const col = i % cols;
+                const row = Math.floor(i / cols);
+
+                const clusterLeft = (col + randomBetween(0.1, 0.9)) * cellW;
+                const clusterTop = (row + randomBetween(0.1, 0.9)) * cellH;
+
+                const dx = clusterLeft - cx;
+                const dy = clusterTop - cy;
+                if ((dx * dx) / (exR * exR) + (dy * dy) / (eyR * eyR) < 1.2) continue;
+
+                const cluster = document.createElement('div');
+                cluster.className = 'sparkle-cluster';
+                cluster.style.left = clusterLeft + 'px';
+                cluster.style.top = clusterTop + 'px';
+
+                // Trong mỗi cụm có 1 ngôi sao to và 1-2 ngôi sao nhỏ đi kèm
+                const sizes = [randomBetween(30, 45), randomBetween(12, 18)];
+                if (Math.random() > 0.5) sizes.push(randomBetween(8, 12));
+
+                sizes.forEach((size, idx) => {
+                    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    svg.setAttribute("viewBox", "0 0 24 24");
+                    svg.setAttribute("class", "sparkle-svg");
+                    svg.style.width = size + "px";
+                    svg.style.height = size + "px";
+                    
+                    // Vị trí tương đối trong cụm: sao to ở tâm (0,0), sao nhỏ lệch ra
+                    if (idx === 0) {
+                        svg.style.left = '0px';
+                        svg.style.top = '0px';
+                    } else {
+                        svg.style.left = randomBetween(-25, 25) + 'px';
+                        svg.style.top = randomBetween(-25, 25) + 'px';
+                    }
+                    
+                    svg.style.animationDelay = randomBetween(0, 2).toFixed(2) + 's';
+                    svg.style.animationDuration = randomBetween(1, 2).toFixed(2) + 's';
+
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path.setAttribute("d", STAR_PATH);
+                    svg.appendChild(path);
+                    cluster.appendChild(svg);
+                });
+
+                sparkleLayer.appendChild(cluster);
+            }
+        }
+
         // Tạo toàn bộ ảnh và chạy hiệu ứng rơi
         function spawnPhotos() {
             landed = 0;
@@ -129,8 +250,8 @@
                 photo.className = 'photo';
                 photo.style.width = photoWidth + 'px';
                 photo.style.height = photoHeight + 'px';
-                // xếp chồng lên nhau một cách tự nhiên
-                photo.style.zIndex = 1 + Math.floor(Math.random() * 100);
+                // xếp chồng lên nhau một cách tự nhiên (bắt đầu từ 10 để trên sparkles)
+                photo.style.zIndex = 10 + Math.floor(Math.random() * 100);
 
                 const img = document.createElement('img');
                 img.src = IMAGE_FILES[i % IMAGE_FILES.length];
@@ -214,6 +335,7 @@ const convergeDuration = randomBetween(1.5, 2.5); // Bay vào xếp trái tim ch
             W = window.innerWidth;
             H = window.innerHeight;
             lastWidth = W;
+            spawnSparkles();
             spawnPhotos();
         }
 
@@ -223,6 +345,7 @@ const convergeDuration = randomBetween(1.5, 2.5); // Bay vào xếp trái tim ch
             W = window.innerWidth;
             H = window.innerHeight;
             lastWidth = W;
+            spawnSparkles();
             spawnPhotos();
         }
 
