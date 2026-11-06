@@ -115,8 +115,10 @@
             const photoWidth = Math.max(44, Math.min(72, W * 0.052));
             const photoHeight = photoWidth * 1.28;
             
-            // Nhân thêm 1.5 để phóng to toàn bộ khung trái tim
-            const scale = Math.min(W * 0.82 / 32, H * 0.72 / 29) * 1.5; 
+            // Hệ số phóng to: màn hình lớn thì phóng 1.5x cho nổi bật,
+            // màn hình nhỏ (điện thoại) giữ 1x để trái tim không tràn khung
+            const zoom = (W < 640 || H < 640) ? 1 : 1.5;
+            const scale = Math.min(W * 0.82 / 32, H * 0.72 / 29) * zoom;
             
             const targets = heartPoints(PHOTO_COUNT, scale, W / 2, H * 0.47);
 
